@@ -1,8 +1,9 @@
 ﻿CREATE TABLE [WordCloud].[WordHistograms]
 (
-    [Word] NVARCHAR(50) NOT NULL , 
-    [Date] DATE NOT NULL, 
+    [Date] DATE NOT NULL,
+    [CloudKey] BIGINT NOT NULL,
+    [WordKey] BIGINT NOT NULL , 
     [StringCount] INT NOT NULL, 
     [WordCount] INT NOT NULL, 
-    CONSTRAINT [PK_WordHistograms] PRIMARY KEY ([Word], [Date]) 
+    CONSTRAINT [PK_WordHistograms] PRIMARY KEY ([Date], [CloudKey], [WordKey]) 
 )

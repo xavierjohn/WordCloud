@@ -1,0 +1,5 @@
+﻿CREATE TABLE [WordCloud].[Words]
+(
+    [Word] NVARCHAR(50) NOT NULL PRIMARY KEY, 
+    [Key] BIGINT NOT NULL IDENTITY
+)

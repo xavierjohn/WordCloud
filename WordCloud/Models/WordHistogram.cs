@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EntityFrameworkExtras.EF6;
 
 namespace WordCloudService
 {
-    // Words per day.
-    [Table("WordCloud.WordHistograms")]
+    [UserDefinedTableType("[WordCloud].[WordHistogramType]")]
     public class WordHistogram
     {
-        [Key]
+        [UserDefinedTableTypeColumn(1)]
         public string Word { get; set; }
-        public DateTime Date { get; set; }
+
+        [UserDefinedTableTypeColumn(2)]
         public int StringCount { get; set; }
+
+        [UserDefinedTableTypeColumn(3)]
         public int WordCount { get; set; }
     }
 }

@@ -13,8 +13,6 @@ namespace WordCloudService
         {
             Database.SetInitializer(new NullDatabaseInitializer<WordCloudContext>());
         }
-
         public DbSet<StopWord> StopWords { get; set; }
-        public DbSet<WordHistogram> WordHistograms { get; set; }
     }
 }

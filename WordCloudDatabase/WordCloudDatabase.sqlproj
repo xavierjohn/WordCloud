@@ -68,8 +68,13 @@
     <Build Include="WordCloud\Tables\WordHistograms.sql" />
     <Build Include="WordCloud\User Defined Table Type\WordHistogramType.sql" />
     <Build Include="WordCloud\Stored Procedures\UpdateWordCloud.sql" />
+    <Build Include="WordCloud\Tables\Words.sql" />
+    <Build Include="WordCloud\Stored Procedures\GetWordCloudByDayRange.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WordCloudDatabase.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>
