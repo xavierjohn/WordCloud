@@ -11,7 +11,7 @@ namespace WordCloudService
 {
     public class WordCloud
     {
-        static char[] _Delimiters = new char[] { ' ', ',', '?', '!', '"','\'', '.' };
+        static char[] _Delimiters = new char[] { ' ', ',', '?', '!', '"', '\'', '.' };
 
         static public void AddString(long cloudKey, string str, DateTime? date = null)
         {
@@ -32,22 +32,36 @@ namespace WordCloudService
                         WordHistograms = allWords.Select(r => new WordHistogram() { Word = r.Word.ToLower(), StringCount = 1, WordCount = r.WordCount }).ToList()
                     };
                     db.Database.ExecuteStoredProcedure(proc);
-
                 }
             }
         }
 
-        static public IList<WordHistogram> GetWordCloudByDayRange(long cloudKey, DateTime fromDate, DateTime toDate, int limit) 
+        static public IEnumerable<WordHistogram> GetWordCloudByDayRange(long cloudKey, DateTime fromDate, DateTime toDate, int limit)
         {
-                using (var db = new WordCloudContext())
+            using (var db = new WordCloudContext())
+            {
+                return db.Database.SqlQuery<WordHistogram>("[WordCloud].[GetWordCloudByDayRange] @CloudKey, @FromDate, @ToDate, @Limit",
+                    new SqlParameter("CloudKey", cloudKey),
+                    new SqlParameter("FromDate", fromDate),
+                    new SqlParameter("ToDate", toDate),
+                    new SqlParameter("Limit", limit)
+                    ).ToList();
+            }
+        }
+
+        static public IEnumerable<WordHistogram> GetWordCloudByDayRange(IEnumerable<long> cloudKeys, DateTime fromDate, DateTime toDate, int limit)
+        {
+            using (var db = new WordCloudContext())
+            {
+                var proc = new GetWordCloudByDayRangeProcedure2()
                 {
-                    return db.Database.SqlQuery<WordHistogram>("[WordCloud].[GetWordCloudByDayRange] @CloudKey, @FromDate, @ToDate, @Limit",
-                        new SqlParameter("CloudKey", cloudKey),
-                        new SqlParameter("FromDate", fromDate),
-                        new SqlParameter("ToDate", toDate),
-                        new SqlParameter("Limit", limit)
-                        ).ToList();
-                }
+                    CloudKeys = cloudKeys.Select(r => new CloudKeyType() { CloudKey = r }).ToList(),
+                    FromDate = fromDate,
+                    ToDate = toDate,
+                    Limit = limit
+                };
+                return db.Database.ExecuteStoredProcedure<WordHistogram>(proc);
+            }
         }
 
         [StoredProcedure("[WordCloud].[UpdateWordCloud]")]
@@ -63,11 +77,18 @@ namespace WordCloudService
             public List<WordHistogram> WordHistograms { get; set; }
         }
 
-        [StoredProcedure("[WordCloud].[GetWordCloudByDayRange]")]
-        private class GetWordCloudByDayRangeProcedure
+        [UserDefinedTableType("[WordCloud].[CloudKeyType]")]
+        private class CloudKeyType
         {
-            [StoredProcedureParameter(SqlDbType.BigInt)]
+            [UserDefinedTableTypeColumn(1)]
             public long CloudKey { get; set; }
+        }
+
+        [StoredProcedure("[WordCloud].[GetWordCloudByDayRange2]")]
+        private class GetWordCloudByDayRangeProcedure2
+        {
+            [StoredProcedureParameter(SqlDbType.Udt)]
+            public List<CloudKeyType> CloudKeys { get; set; }
 
             [StoredProcedureParameter(SqlDbType.Date)]
             public DateTime FromDate { get; set; }
@@ -77,9 +98,6 @@ namespace WordCloudService
 
             [StoredProcedureParameter(SqlDbType.Int)]
             public int Limit { get; set; }
-
-            [StoredProcedureParameter(SqlDbType.Udt, Direction = ParameterDirection.Output)]
-            public List<WordHistogram> WordHistograms { get; set; }
         }
     }
 }

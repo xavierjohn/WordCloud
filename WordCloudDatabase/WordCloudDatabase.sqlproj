@@ -70,6 +70,8 @@
     <Build Include="WordCloud\Stored Procedures\UpdateWordCloud.sql" />
     <Build Include="WordCloud\Tables\Words.sql" />
     <Build Include="WordCloud\Stored Procedures\GetWordCloudByDayRange.sql" />
+    <Build Include="WordCloud\User Defined Table Type\CloudKeyType.sql" />
+    <Build Include="WordCloud\Stored Procedures\GetWordCloudByDayRange2.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WordCloudDatabase.publish.xml" />

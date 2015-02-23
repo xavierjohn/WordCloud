@@ -62,5 +62,21 @@ namespace WordCloudUnitTest
             words = WordCloud.GetWordCloudByDayRange(1, today, today, 100).ToDictionary(r => r.Word);
             Assert.IsFalse(words.ContainsKey("how"));
         }
+
+        [TestMethod]
+        public void HaveTheCorrectOrder()
+        {
+            WordCloud.AddString(1, "How are you?");
+            WordCloud.AddString(1, "How are you? Where do you come from?");
+            WordCloud.AddString(2, "What was your score?");
+            var cloudKeys = new long[] { 1, 2 };
+            var words = WordCloud.GetWordCloudByDayRange(cloudKeys, DateTime.Now, DateTime.Now, 100);
+            var maxStringCount = words.First().StringCount;
+            foreach (var word in words)
+            {
+                Assert.IsTrue(maxStringCount >= word.StringCount);
+                maxStringCount = word.StringCount;
+            }
+        }
     }
 }
