@@ -29,7 +29,7 @@ namespace WordCloudService
                     {
                         CloudKey = cloudKey,
                         Date = date.Value,
-                        WordHistograms = allWords.Select(r => new WordHistogram() { Word = r.Word.ToLower(), StringCount = 1, WordCount = r.WordCount }).ToList()
+                        WordHistograms = allWords.Select(r => new WordHistogramType() { Word = r.Word.ToLower(), StringCount = 1, WordCount = r.WordCount }).ToList()
                     };
                     db.Database.ExecuteStoredProcedure(proc);
                 }
@@ -38,29 +38,24 @@ namespace WordCloudService
 
         static public IEnumerable<WordHistogram> GetWordCloudByDayRange(long cloudKey, DateTime fromDate, DateTime toDate, int limit)
         {
-            using (var db = new WordCloudContext())
-            {
-                return db.Database.SqlQuery<WordHistogram>("[WordCloud].[GetWordCloudByDayRange] @CloudKey, @FromDate, @ToDate, @Limit",
-                    new SqlParameter("CloudKey", cloudKey),
-                    new SqlParameter("FromDate", fromDate),
-                    new SqlParameter("ToDate", toDate),
-                    new SqlParameter("Limit", limit)
-                    ).ToList();
-            }
+            return GetWordCloudByDayRange(new[] { cloudKey }, fromDate, toDate, limit);
         }
 
         static public IEnumerable<WordHistogram> GetWordCloudByDayRange(IEnumerable<long> cloudKeys, DateTime fromDate, DateTime toDate, int limit)
         {
             using (var db = new WordCloudContext())
             {
-                var proc = new GetWordCloudByDayRangeProcedure2()
+                var proc = new GetWordCloudByDayRangeProcedure()
                 {
                     CloudKeys = cloudKeys.Select(r => new CloudKeyType() { CloudKey = r }).ToList(),
                     FromDate = fromDate,
                     ToDate = toDate,
                     Limit = limit
                 };
-                return db.Database.ExecuteStoredProcedure<WordHistogram>(proc);
+                var flatHistogram = db.Database.ExecuteStoredProcedure<WordHistogramFlat>(proc);
+                return flatHistogram
+                    .GroupBy(r => new { r.Word, r.StringCount, r.WordCount }, r => r.CloudKey)
+                    .Select(g => new WordHistogram { Word = g.Key.Word, WordCount = g.Key.WordCount, StringCount = g.Key.StringCount, CloudKeys = g });
             }
         }
 
@@ -74,7 +69,7 @@ namespace WordCloudService
             public DateTime Date { get; set; }
 
             [StoredProcedureParameter(SqlDbType.Udt)]
-            public List<WordHistogram> WordHistograms { get; set; }
+            public List<WordHistogramType> WordHistograms { get; set; }
         }
 
         [UserDefinedTableType("[WordCloud].[CloudKeyType]")]
@@ -84,8 +79,8 @@ namespace WordCloudService
             public long CloudKey { get; set; }
         }
 
-        [StoredProcedure("[WordCloud].[GetWordCloudByDayRange2]")]
-        private class GetWordCloudByDayRangeProcedure2
+        [StoredProcedure("[WordCloud].[GetWordCloudByDayRange]")]
+        private class GetWordCloudByDayRangeProcedure
         {
             [StoredProcedureParameter(SqlDbType.Udt)]
             public List<CloudKeyType> CloudKeys { get; set; }
@@ -98,6 +93,27 @@ namespace WordCloudService
 
             [StoredProcedureParameter(SqlDbType.Int)]
             public int Limit { get; set; }
+        }
+
+        [UserDefinedTableType("[WordCloud].[WordHistogramType]")]
+        private class WordHistogramType
+        {
+            [UserDefinedTableTypeColumn(1)]
+            public string Word { get; set; }
+
+            [UserDefinedTableTypeColumn(2)]
+            public int StringCount { get; set; }
+
+            [UserDefinedTableTypeColumn(3)]
+            public int WordCount { get; set; }
+        }
+
+        private class WordHistogramFlat
+        {
+            public long CloudKey { get; set; }
+            public string Word { get; set; }
+            public int StringCount { get; set; }
+            public int WordCount { get; set; }
         }
     }
 }
