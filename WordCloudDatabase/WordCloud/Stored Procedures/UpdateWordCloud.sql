@@ -21,7 +21,7 @@ SELECT Word FROM @UnStoppedWords as wh where wh.[Word] not in
 
 MERGE [WordCloud].WordHistograms as target
 using (
-select @Date as [Date], @CloudKey as CloudKey, w.[Key] as [WordKey], usw.[StringCount], usw.[WordCount]
+select @Date as [Date], @CloudKey as CloudKey, w.[WordKey], usw.[StringCount], usw.[WordCount]
 from @UnStoppedWords as usw 
 inner join WordCloud.Words as w on usw.[Word] = w.[Word])
 as source

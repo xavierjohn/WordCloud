@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -52,10 +54,23 @@ namespace WordCloudService
                     ToDate = toDate,
                     Limit = limit
                 };
-                var flatHistogram = db.Database.ExecuteStoredProcedure<WordHistogramFlat>(proc);
+                db.Database.Connection.Open();
+                var reader = db.Database.ExecuteReader(proc);
+                var flatHistogram = ((IObjectContextAdapter)db)
+                    .ObjectContext
+                    .Translate<WordHistogramFlat>(reader).ToList();
+
+                reader.NextResult();
+                var flatCloudKey = ((IObjectContextAdapter)db)
+                    .ObjectContext
+                    .Translate<WordCloudKeyFlat>(reader).ToList();
+
+                db.Database.Connection.Close();
                 return flatHistogram
-                    .GroupBy(r => new { r.Word, r.StringCount, r.WordCount }, r => r.CloudKey)
-                    .Select(g => new WordHistogram { Word = g.Key.Word, WordCount = g.Key.WordCount, StringCount = g.Key.StringCount, CloudKeys = g });
+                    .Select(r => new WordHistogram { Word = r.Word, WordCount = r.WordCount, StringCount = r.StringCount, 
+                        CloudKeys = flatCloudKey.Where( w => w.Word == r.Word).Select(w => w.CloudKey).ToList()
+                    })
+                    .OrderByDescending(h => h.StringCount);
             }
         }
 
@@ -114,6 +129,12 @@ namespace WordCloudService
             public string Word { get; set; }
             public int StringCount { get; set; }
             public int WordCount { get; set; }
+        }
+
+        private class WordCloudKeyFlat
+        {
+            public string Word { get; set; }
+            public long CloudKey { get; set; }
         }
     }
 }

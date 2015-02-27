@@ -1,0 +1,3 @@
+[submodule "EntityFrameworkExtras"]
+	path = EntityFrameworkExtras
+	url = https://github.com/xavierjohn/EntityFrameworkExtras.git

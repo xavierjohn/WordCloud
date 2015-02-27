@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordCloudUnitTest", "WordCl
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WordCloudDatabase", "WordCloudDatabase\WordCloudDatabase.sqlproj", "{F3F41709-BD27-45EE-B603-C66BA72671F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkExtras.EF6", "EntityFrameworkExtras\EntityFrameworkExtras.EF6\EntityFrameworkExtras.EF6.csproj", "{7ED1D61C-9396-4663-952D-D2F7DAD19B19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{F3F41709-BD27-45EE-B603-C66BA72671F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3F41709-BD27-45EE-B603-C66BA72671F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3F41709-BD27-45EE-B603-C66BA72671F2}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{7ED1D61C-9396-4663-952D-D2F7DAD19B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED1D61C-9396-4663-952D-D2F7DAD19B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED1D61C-9396-4663-952D-D2F7DAD19B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED1D61C-9396-4663-952D-D2F7DAD19B19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -69,6 +69,7 @@ namespace WordCloudUnitTest
             WordCloud.AddString(1, "How are you?");
             WordCloud.AddString(1, "How are you? Where do you come from?");
             WordCloud.AddString(2, "What was your score?");
+            WordCloud.AddString(2, "Who are you?");
             var cloudKeys = new long[] { 1, 2 };
             var words = WordCloud.GetWordCloudByDayRange(cloudKeys, DateTime.Now, DateTime.Now, 100);
             var maxStringCount = words.First().StringCount;
