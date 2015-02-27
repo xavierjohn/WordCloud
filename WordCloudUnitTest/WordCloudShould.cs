@@ -29,6 +29,7 @@ namespace WordCloudUnitTest
             WordCloud.AddString(1, "How are you?");
             WordCloud.AddString(1, "How are you? Where do you come from?");
             WordCloud.AddString(2, "What was your score?");
+            WordCloud.AddString(2, "Who are you?");
             var words = WordCloud.GetWordCloudByDayRange(1, DateTime.Now, DateTime.Now, 100).ToDictionary(r => r.Word);
             Assert.AreEqual(2, words["how"].WordCount);
             Assert.AreEqual(1, words["where"].WordCount);
@@ -40,6 +41,11 @@ namespace WordCloudUnitTest
             words = WordCloud.GetWordCloudByDayRange(2, DateTime.Now, DateTime.Now, 100).ToDictionary(r => r.Word);
             Assert.AreEqual(1, words["what"].WordCount);
             Assert.AreEqual(1, words["what"].StringCount);
+
+            var cloudKeys = new long[] { 1, 2 };
+            words = WordCloud.GetWordCloudByDayRange(cloudKeys, DateTime.Now, DateTime.Now, 100).ToDictionary(r => r.Word);
+            Assert.AreEqual(4, words["you"].WordCount);
+            Assert.AreEqual(3, words["you"].StringCount);
         }
 
         [TestMethod]
