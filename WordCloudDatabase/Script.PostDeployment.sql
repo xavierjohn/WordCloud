@@ -17,9 +17,18 @@ SET NOCOUNT OFF;
 
 insert into @words 
 values
+('and'),
+('are'),
 ('for'),
+('from'),
+('has'),
+('its'),
+('that'),
+('the'),
 ('was'),
-('what');
+('were'),
+('will'),
+('with');
 
 merge [WordCloud].[StopWords] as target
 using (select * from @words) as source
