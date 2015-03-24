@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [WordCloud].[UpdateWordCloud]
-    @CloudKey as INT,
+    @CloudKey as BIGINT,
     @Date as Date,
     @WordHistograms as [WordCloud].WordHistogramType readonly
 AS
