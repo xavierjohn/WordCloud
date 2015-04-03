@@ -7,7 +7,7 @@ AS
 
 DECLARE @WordHistogram [WordCloud].[WordHistogramType];
   INSERT INTO @WordHistogram
-  SELECT TOP (@Limit)
+  SELECT
       [Word]
       ,sum([StringCount]) as StringCount
       ,sum([WordCount]) as WordCount
@@ -17,7 +17,7 @@ DECLARE @WordHistogram [WordCloud].[WordHistogramType];
   WHERE wh.[Date] between @FromDate and @ToDate
   group by w.Word;
 
-  SELECT * from @WordHistogram order by StringCount desc;
+  SELECT TOP (@Limit) * from @WordHistogram order by StringCount desc;
 
   SELECT w.Word, CloudKey FROM @WordHistogram as v_wh
   INNER JOIN WordCloud.Words as w on v_wh.Word = w.Word

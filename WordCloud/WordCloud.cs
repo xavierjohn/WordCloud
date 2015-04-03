@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,13 +14,15 @@ namespace WordCloudService
 {
     public class WordCloud
     {
-        static char[] _Delimiters = new char[] { ' ', ',', '?', '!', '"', '\'', '.' };
 
         static public void AddString(long cloudKey, string str, DateTime? date = null)
         {
+            char[] delimiters = new char[] { ' ', ',', '?', '!', '"', '\'', '.', '[', ']', '(', ')', '\n', '\r', ';' };
+
             if (date == null) date = DateTime.Now;
-            var allWords = str.Split(_Delimiters, StringSplitOptions.RemoveEmptyEntries)
-                .Where(r => r.Length > 2)
+            var allWords = str.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
+                .Where(r => r.Length > 2 && r.Length < 50 && r.All(char.IsLetter))
+                .Select(r => r.ToLower())
                 .GroupBy(r => r)
                 .Select(g => new { Word = g.Key, WordCount = g.Count() });
 
@@ -35,6 +38,15 @@ namespace WordCloudService
                     };
                     db.Database.ExecuteStoredProcedure(proc);
                 }
+            }
+        }
+
+        static public void Delete(long cloudKey)
+        {
+            using (var db = new WordCloudContext())
+            {
+                SqlParameter cloudKeyParam = new SqlParameter("@wordCloudKey", cloudKey);
+                db.Database.ExecuteSqlCommand("[WordCloud].[DeleteWordCloud] @wordCloudKey", cloudKeyParam);
             }
         }
 
@@ -67,8 +79,12 @@ namespace WordCloudService
 
                 db.Database.Connection.Close();
                 return flatHistogram
-                    .Select(r => new WordHistogram { Word = r.Word, WordCount = r.WordCount, StringCount = r.StringCount, 
-                        CloudKeys = flatCloudKey.Where( w => w.Word == r.Word).Select(w => w.CloudKey).ToList()
+                    .Select(r => new WordHistogram
+                    {
+                        Word = r.Word,
+                        WordCount = r.WordCount,
+                        StringCount = r.StringCount,
+                        CloudKeys = flatCloudKey.Where(w => w.Word == r.Word).Select(w => w.CloudKey).ToList()
                     })
                     .OrderByDescending(h => h.StringCount);
             }
@@ -110,6 +126,7 @@ namespace WordCloudService
             public int Limit { get; set; }
         }
 
+        [DebuggerDisplay("{Word}")]
         [UserDefinedTableType("[WordCloud].[WordHistogramType]")]
         private class WordHistogramType
         {
